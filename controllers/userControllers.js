@@ -108,13 +108,16 @@ const changeAvatar = async (req, res, next) => {
         // find user from database
         const user =  await User.findById(req.user.id)
         // delete old avatar if  exists
-        if(user.avatar){
-            fs.unlink(path.join(__dirname,'..','uploads',user.avatar), (err) =>{
-               if(err){
-                return next(new HttpError(err)) 
-               }
-            })
-        }
+        if (user.avatar) {
+            const oldAvatarPath = path.join(__dirname, '..', 'uploads', user.avatar);
+            if (fs.existsSync(oldAvatarPath)) {
+              fs.unlink(oldAvatarPath, (err) => {
+                if (err) {
+                  return next(new HttpError("Error deleting old avatar.", 500));
+                }
+              });
+            }
+          }
         const {avatar} = req.files;
         if(avatar.size > 500000){
             return next(new HttpError("Profile picture is too big. Should be less than 500kb.",422))
