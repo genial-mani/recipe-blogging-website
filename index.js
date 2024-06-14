@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const { google } = require('googleapis');
 const nodemailer = require('nodemailer');
-const cron = require("node-cron");
+const cron = require('node-cron');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
@@ -11,16 +11,24 @@ const Subscriber = require('./models/subsModel');
 const recipesRouter = require('./routes/recipeRoutes');
 const usersRouter = require('./routes/userRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+const helmet = require('helmet');
 
 dotenv.config();
 
 const app = express();
 
+app.use(helmet());
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ credentials: true, origin: ['http://localhost:3000','https://recipe-blogging-website-frontend.vercel.app'] }));
 app.use(fileUpload());
 app.use('/uploads', express.static(__dirname + '/uploads'));
+
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://recipe-blogging-website-frontend.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Middleware
 app.use(bodyParser.json());
@@ -32,25 +40,15 @@ app.use('/api/users', usersRouter);
 app.use(notFound);
 app.use(errorHandler);
 
-
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   process.env.GOOGLE_REDIRECT_URI
 );
 
-
 oauth2Client.setCredentials({
   refresh_token: process.env.GOOGLE_REFRESH_TOKEN
 });
-
-// const getAuthUrl = () => {
-//   const scopes = ['https://mail.google.com/'];
-//   return oauth2Client.generateAuthUrl({
-//     access_type: 'offline',
-//     scope: scopes,
-//   });
-// };
 
 const sendEmail = async (emailOptions) => {
   try {
@@ -63,7 +61,7 @@ const sendEmail = async (emailOptions) => {
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-        accessToken: accessToken,
+        accessToken: accessToken.token,
       },
     });
 
@@ -105,4 +103,3 @@ connectDB().then(() => {
     console.log(`Server running on port ${port}`);
   });
 });
- 
