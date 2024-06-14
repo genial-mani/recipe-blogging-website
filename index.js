@@ -27,7 +27,8 @@ app.use(cors({
   origin: ['http://localhost:3000', 'https://recipe-blogging-website-frontend.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Access-Control-Allow-Origin']
 }));
 
 // Middleware
