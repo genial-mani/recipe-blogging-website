@@ -18,7 +18,11 @@ const app = express();
 
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ credentials: true, origin: ['http://localhost:3000','https://recipe-blogging-website-frontend.vercel.app'] }));
+app.use(cors({ 
+  credentials: true,
+  origin: ['http://localhost:3000','https://recipe-blogging-website-frontend.vercel.app'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Access-Control-Allow-Origin'] }));
 app.use(fileUpload());
 app.use('/uploads', express.static(__dirname + '/uploads'));
 
